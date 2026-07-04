@@ -1,19 +1,38 @@
 import analyzeImage from "../sightengine.js";
 import formatResult from "../formatter.js";
 
+const validApiKeys = [
+  "tnet_free_12345",
+  "tnet_admin_99999"
+];
+
 export default async function handler(req, res) {
-  // Ruhusu POST pekee
   if (req.method !== "POST") {
     return res.status(405).json({
       success: false,
-      message: "Method Not Allowed",
+      message: "Only POST allowed",
+    });
+  }
+
+  const apiKey = req.headers["x-api-key"];
+
+  if (!apiKey) {
+    return res.status(401).json({
+      success: false,
+      message: "Missing API Key",
+    });
+  }
+
+  if (!validApiKeys.includes(apiKey)) {
+    return res.status(403).json({
+      success: false,
+      message: "Invalid API Key",
     });
   }
 
   try {
     const { imageUrl } = req.body;
 
-    // Hakikisha imageUrl ipo
     if (!imageUrl) {
       return res.status(400).json({
         success: false,
@@ -22,19 +41,20 @@ export default async function handler(req, res) {
     }
 
     const raw = await analyzeImage(imageUrl);
-const result = formatResult(raw);
-    //rudisha majibu
+    const report = formatResult(raw);
 
-return res.status(200).json({
-  success: true,
-  provider: "TNet Intelligence Engine",
-  report: result,
-});
-    
+    return res.status(200).json({
+      success: true,
+      provider: "TNet API",
+      apiKey: apiKey,
+      reportId: `TNET_${Date.now()}`,
+      report,
+    });
+
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message || "Internal Server Error",
+      message: error.message,
     });
   }
-      }
+}
