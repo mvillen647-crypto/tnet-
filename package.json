@@ -1,1 +1,24 @@
-
+{
+  "name": "tnet-api",
+  "version": "1.0.0",
+  "description": "TNet Content Intelligence API (V1 - Sightengine powered)",
+  "main": "api/image.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev"
+  },
+  "keywords": [
+    "ai",
+    "moderation",
+    "image-analysis",
+    "sightengine",
+    "content-intelligence",
+    "tnet"
+  ],
+  "author": "TNet Technologies",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
