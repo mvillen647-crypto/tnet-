@@ -1,4 +1,5 @@
 import analyzeImage from "../sightengine.js";
+import formatResult from "../formatter.js";
 
 export default async function handler(req, res) {
   // Ruhusu POST pekee
@@ -20,16 +21,16 @@ export default async function handler(req, res) {
       });
     }
 
-    // Tuma image kwa Sightengine
-    const result = await analyzeImage(imageUrl);
+    const raw = await analyzeImage(imageUrl);
+const result = formatResult(raw);
+    //rudisha majibu
 
-    // Rudisha response ya TNet
-    return res.status(200).json({
-      success: true,
-      provider: "TNet",
-      data: result,
-    });
-
+return res.status(200).json({
+  success: true,
+  provider: "TNet Intelligence Engine",
+  report: result,
+});
+    
   } catch (error) {
     return res.status(500).json({
       success: false,
