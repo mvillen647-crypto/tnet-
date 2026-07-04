@@ -9,6 +9,14 @@ const setCors = (res) => {
 };
 
 export default async function handler(req, res) {
+  // 👉 IMPORTANT: apply CORS FIRST
+  setCors(res);
+
+  // handle preflight request
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Only POST allowed" });
   }
