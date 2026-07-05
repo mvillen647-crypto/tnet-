@@ -29,9 +29,12 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+  console.error(err);
+
+  return res.status(500).json({
+    success: false,
+    message: err.message,
+    stack: err.stack
+  });
   }
 }
