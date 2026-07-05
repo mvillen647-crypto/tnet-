@@ -2,6 +2,16 @@ import { createClient } from "@supabase/supabase-js";
 import formidable from "formidable";
 import fs from "fs";
 
+const setCors = (res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, x-api-key"
+  );
+};
+
+
 export const config = {
   api: {
     bodyParser: false,
