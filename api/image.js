@@ -1,6 +1,7 @@
 import analyzeImage from "../sightengine.js";
 import formatResult from "../formatter.js";
 import { validateKey } from "../lib/keys.js";
+import { trackUsage } from "../lib/usage.js";
 
 const setCors = (res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
         message: "Invalid API Key",
       });
     }
-
+await trackUsage(apiKey);
     // IMAGE INPUT
     const { imageUrl } = req.body;
 
