@@ -14,9 +14,11 @@ export default async function analyzeImage(imageUrl) {
 
   const data = await res.json();
 
+  // 🔥 HII NI IMPORTANT DEBUG
+  console.log("SIGHTENGINE RAW RESPONSE:", data);
+
   if (!res.ok || data.status === "failure") {
-    console.log("Sightengine error:", data);
-    throw new Error("Sightengine API request failed");
+    throw new Error(JSON.stringify(data));
   }
 
   return data;
