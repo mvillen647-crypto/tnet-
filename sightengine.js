@@ -6,7 +6,7 @@ export default async function analyzeImage(imageUrl) {
     },
     body: new URLSearchParams({
       url: imageUrl,
-      models: "nudity,offensive,wad",
+      models: "nudity,offensive,wad,genai",
       api_user: process.env.SIGHTENGINE_USER,
       api_secret: process.env.SIGHTENGINE_SECRET,
     }),
@@ -14,7 +14,6 @@ export default async function analyzeImage(imageUrl) {
 
   const data = await res.json();
 
-  // 🔥 HII NI IMPORTANT DEBUG
   console.log("SIGHTENGINE RAW RESPONSE:", data);
 
   if (!res.ok || data.status === "failure") {
