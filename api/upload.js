@@ -64,7 +64,7 @@ export default async function handler(req, res) {
     const fileName = `tnet-${Date.now()}-${uploadedFile.originalFilename}`;
 
     const { error } = await supabase.storage
-      .from("tnet-image")
+      .from("tnet-images")
       .upload(fileName, buffer, {
         contentType: uploadedFile.mimetype,
         upsert: false,
