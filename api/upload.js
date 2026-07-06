@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import formidable from "formidable";
-import fs from "fs";
+import fs from "fs/promises";
 
 export const config = {
   api: {
@@ -16,11 +16,22 @@ const supabase = createClient(
 function setCors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, x-api-key"
-  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
 }
+
+const parseForm = (req) => {
+  const form = formidable({
+    multiples: false,
+    keepExtensions: true,
+  });
+
+  return new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) reject(err);
+      else resolve({ fields, files });
+    });
+  });
+};
 
 export default async function handler(req, res) {
   setCors(res);
@@ -35,76 +46,54 @@ export default async function handler(req, res) {
     });
   }
 
-  const form = formidable({
-    multiples: false,
-    keepExtensions: true,
-  });
+  try {
+    const { files } = await parseForm(req);
 
-  form.parse(req, async (err, fields, files) => {
-    try {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({
-          error: err.message,
-        });
-      }
+    const uploadedFile = Array.isArray(files.file)
+      ? files.file[0]
+      : files.file;
 
-      const uploadedFile = Array.isArray(files.file)
-        ? files.file[0]
-        : files.file;
-
-      if (!uploadedFile) {
-        return res.status(400).json({
-          error: "No file uploaded",
-        });
-      }
-
-      const buffer = fs.readFileSync(uploadedFile.filepath);
-
-      const fileName =
-        "tnet-" +
-        Date.now() +
-        "-" +
-        uploadedFile.originalFilename;
-
-      const { error: uploadError } =
-        await supabase.storage
-          .from("tnet-image")
-          .upload(fileName, buffer, {
-            contentType: uploadedFile.mimetype,
-            upsert: false,
-          });
-
-      if (uploadError) {
-        console.error(uploadError);
-
-        return res.status(500).json({
-          error: uploadError.message,
-        });
-      }
-
-      const { data } = supabase.storage
-        .from("tnet-image")
-        .getPublicUrl(fileName);
-
-      if (!data?.publicUrl) {
-        return res.status(500).json({
-          error: "Failed to create public URL",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        secure_url: data.publicUrl,
-        fileName,
-      });
-
-    } catch (e) {
-      console.error(e);
-
-      return res.status(500).json({
-        error: e.message,
+    if (!uploadedFile) {
+      return res.status(400).json({
+        error: "No file uploaded",
       });
     }
-  });
+
+    const buffer = await fs.readFile(uploadedFile.filepath);
+
+    const fileName = `tnet-${Date.now()}-${uploadedFile.originalFilename}`;
+
+    const { error } = await supabase.storage
+      .from("tnet-image")
+      .upload(fileName, buffer, {
+        contentType: uploadedFile.mimetype,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("SUPABASE UPLOAD ERROR:", error);
+
+      return res.status(500).json({
+        error: error.message,
+      });
+    }
+
+    const { data } = supabase.storage
+      .from("tnet-images")
+      .getPublicUrl(fileName);
+
+    return res.status(200).json({
+      success: true,
+      secure_url: data.publicUrl,
+      fileName,
+    });
+
+  } catch (error) {
+
+    console.error("UPLOAD ERROR:", error);
+
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
 }
