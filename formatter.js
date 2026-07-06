@@ -1,24 +1,20 @@
 export default function formatResult(raw) {
 
+  console.log("FORMATTER INPUT:", JSON.stringify(raw, null, 2));
+
   const aiScore =
-    raw?.type?.ai_generated ?? 0;
+    raw?.type?.ai_generated ??
+    raw?.genai?.ai_generated ??
+    raw?.genai?.score ??
+    null;
 
 
   return {
+    aiPercentage: aiScore !== null 
+      ? Math.round(aiScore * 100)
+      : null,
 
-    aiPercentage: Math.round(aiScore * 100),
-
-    isAI: aiScore >= 0.7,
-
-
-    trustScore: Math.round((1 - aiScore) * 100),
-
-
-    detections: {
-      nudity: raw?.nudity?.safe ?? null,
-      offensive: raw?.offensive?.prob ?? null,
-      weapon: raw?.weapon?.prob ?? null,
-    },
+    isAI: aiScore !== null ? aiScore >= 0.7 : null,
 
     raw
   };
