@@ -1,7 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
 
-export default analyzeImage;(imageBuffer, fileName = "image.jpg") {
+export async function checkImage(imageBuffer, fileName = "image.jpg") {
   const data = new FormData();
 
   data.append("media", imageBuffer, fileName);
@@ -20,3 +20,21 @@ export default analyzeImage;(imageBuffer, fileName = "image.jpg") {
   return response.data;
 }
 
+
+// Kwa /api/image (imageUrl)
+export default async function analyzeImage(imageUrl) {
+
+  const response = await axios.get(
+    "https://api.sightengine.com/1.0/check.json",
+    {
+      params: {
+        url: imageUrl,
+        models: "nudity-2.1,gore-2.0",
+        api_user: process.env.SIGHTENGINE_USER,
+        api_secret: process.env.SIGHTENGINE_SECRET,
+      },
+    }
+  );
+
+  return response.data;
+}
