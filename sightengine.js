@@ -1,24 +1,34 @@
-export default async function analyzeImage(imageUrl) {
-  const res = await fetch("https://api.sightengine.com/1.0/check.json", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      url: imageUrl,
-      models: "nudity,offensive,wad,genai",
-      api_user: process.env.SIGHTENGINE_USER,
-      api_secret: process.env.SIGHTENGINE_SECRET,
-    }),
-  });
+// sightengine.js
+const axios = require("axios");
+const FormData = require("form-data");
 
-  const data = await res.json();
+async function checkImage(imageBuffer, fileName = "image.jpg") {
+  const data = new FormData();
 
-  console.log("SIGHTENGINE RAW RESPONSE:", data);
+  data.append("media", imageBuffer, fileName);
+  data.append("models", "nudity-2.1,gore-2.0");
+  data.append("api_user", process.env.SIGHTENGINE_USER);
+  data.append("api_secret", process.env.SIGHTENGINE_SECRET);
 
-  if (!res.ok || data.status === "failure") {
-    throw new Error(JSON.stringify(data));
+  try {
+    const response = await axios.post(
+      "https://api.sightengine.com/1.0/check.json",
+      data,
+      {
+        headers: data.getHeaders(),
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Sightengine Error:",
+      error.response?.data || error.message
+    );
+    throw error;
   }
-
-  return data;
 }
+
+module.exports = {
+  checkImage,
+};
