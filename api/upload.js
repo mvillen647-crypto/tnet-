@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import formidable from "formidable";
 import fs from "fs/promises";
+import { checkImage } from "../sightengine.js";
 
 export const config = {
   api: {
@@ -61,6 +62,25 @@ export default async function handler(req, res) {
 
     const buffer = await fs.readFile(uploadedFile.filepath);
 
+    // Scan image with Sightengine
+    const scanResult = await checkImage(
+      buffer,
+      uploadedFile.originalFilename
+    );
+
+    // Reject if explicit nudity or gore detected
+    if (
+      (scanResult.nudity?.raw ?? 0) > 0.5 ||
+      (scanResult.gore?.prob ?? 0) > 0.5
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Image rejected by AI moderation.",
+        scan: scanResult,
+      });
+    }
+
+    // Upload to Supabase
     const fileName = `tnet-${Date.now()}-${uploadedFile.originalFilename}`;
 
     const { error } = await supabase.storage
@@ -86,14 +106,14 @@ export default async function handler(req, res) {
       success: true,
       secure_url: data.publicUrl,
       fileName,
+      scan: scanResult,
     });
 
   } catch (error) {
-
     console.error("UPLOAD ERROR:", error);
 
     return res.status(500).json({
       error: error.message,
     });
   }
-}
+      }
