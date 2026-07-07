@@ -1,7 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
 
-export async function checkImage(imageBuffer, fileName = "image.jpg") {
+export default analyzeImage;(imageBuffer, fileName = "image.jpg") {
   const data = new FormData();
 
   data.append("media", imageBuffer, fileName);
@@ -19,3 +19,4 @@ export async function checkImage(imageBuffer, fileName = "image.jpg") {
 
   return response.data;
 }
+
