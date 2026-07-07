@@ -18,11 +18,10 @@
   ],
   "author": "TNet Technologies",
   "license": "MIT",
-  {
   "dependencies": {
-    "@supabase/supabase-js": "...",
-    "axios": "...",
-    "form-data": "...",
-    "formidable": "..."
+    "@supabase/supabase-js": "^2.50.0",
+    "axios": "^1.7.9",
+    "form-data": "^4.0.1",
+    "formidable": "^3.5.2"
   }
 }
