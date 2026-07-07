@@ -1,8 +1,7 @@
-// sightengine.js
-const axios = require("axios");
-const FormData = require("form-data");
+import axios from "axios";
+import FormData from "form-data";
 
-async function checkImage(imageBuffer, fileName = "image.jpg") {
+export async function checkImage(imageBuffer, fileName = "image.jpg") {
   const data = new FormData();
 
   data.append("media", imageBuffer, fileName);
@@ -10,25 +9,13 @@ async function checkImage(imageBuffer, fileName = "image.jpg") {
   data.append("api_user", process.env.SIGHTENGINE_USER);
   data.append("api_secret", process.env.SIGHTENGINE_SECRET);
 
-  try {
-    const response = await axios.post(
-      "https://api.sightengine.com/1.0/check.json",
-      data,
-      {
-        headers: data.getHeaders(),
-      }
-    );
+  const response = await axios.post(
+    "https://api.sightengine.com/1.0/check.json",
+    data,
+    {
+      headers: data.getHeaders(),
+    }
+  );
 
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Sightengine Error:",
-      error.response?.data || error.message
-    );
-    throw error;
-  }
+  return response.data;
 }
-
-module.exports = {
-  checkImage,
-};
